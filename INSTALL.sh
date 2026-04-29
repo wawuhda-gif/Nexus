@@ -1,8 +1,7 @@
 #!/bin/bash
 
-# SSH-Panel-Pro Quick Installer (1-Line Command)
+# Enhanced INSTALL.sh with Auto-Login Menu Setup
 # Usage: bash <(curl -fsSL https://raw.githubusercontent.com/wawuhda-gif/Nexus/main/INSTALL.sh)
-# Or: bash <(wget -O - https://raw.githubusercontent.com/wawuhda-gif/Nexus/main/INSTALL.sh)
 
 set -e
 
@@ -57,6 +56,23 @@ apt-get update -qq 2>/dev/null
 apt-get install -y curl wget openssl >/dev/null 2>&1
 echo -e "\033[0;32m[✓] Essential packages installed\033[0m"
 
+echo -e "\033[0;33m[*] Setting up auto-login menu...\033[0m"
+# Download login menu
+curl -fsSL -o /usr/local/bin/ssh-panel-login https://raw.githubusercontent.com/wawuhda-gif/Nexus/main/login-menu.sh 2>/dev/null
+chmod +x /usr/local/bin/ssh-panel-login
+
+# Add to /etc/profile for all users
+if ! grep -q "ssh-panel-login" /etc/profile; then
+    cat >> /etc/profile <<'EOF'
+
+# SSH-Panel-Pro Auto-Login Menu
+if [ -f /usr/local/bin/ssh-panel-login ] && [ -z "$SSH_ORIGINAL_COMMAND" ]; then
+    /usr/local/bin/ssh-panel-login
+fi
+EOF
+fi
+echo -e "\033[0;32m[✓] Auto-login menu configured\033[0m"
+
 echo ""
 echo -e "\033[0;36m╔════════════════════════════════════════════════════════════╗\033[0m"
 echo -e "\033[0;36m║              INSTALLATION COMPLETE!                         ║\033[0m"
@@ -65,13 +81,23 @@ echo ""
 
 echo -e "\033[1;32m✓ SSH-Panel-Pro is ready to use!\033[0m"
 echo ""
-echo "To start the panel, run:"
-echo -e "  \033[1;36mssh-panel-pro\033[0m"
-echo -e "  Or: \033[1;36msudo ssh-panel-pro\033[0m"
+echo -e "\033[1;33m✨ Features Installed:\033[0m"
+echo "  ✓ Main Control Panel"
+echo "  ✓ Auto-Login Menu (shows on SSH login)"
+echo "  ✓ All Protocol Support (SSH, Dropbear, VPN, etc)"
+echo "  ✓ ZiVPN Support (Zahid Islam Binary)"
+echo "  ✓ Telegram Bot Integration"
+echo "  ✓ Domain Management with SSL"
 echo ""
-echo "Quick commands:"
-echo -e "  \033[1;33mManual run:\033[0m /usr/local/bin/ssh-panel-pro"
-echo -e "  \033[1;33mHelp:\033[0m ssh-panel-pro --help"
+echo -e "\033[1;33mAvailable Commands:\033[0m"
+echo "  • \033[1;36mssh-panel-pro\033[0m - Open main panel"
+echo "  • \033[1;36mssh-panel-login\033[0m - Show login menu"
+echo ""
+echo -e "\033[1;33mNext Steps:\033[0m"
+echo "  1. Next time you SSH login, auto-menu will appear"
+echo "  2. Or run 'ssh-panel-pro' to open manually"
+echo "  3. Configure Telegram bot in the panel"
+echo "  4. Add first user"
 echo ""
 
 read -p "Start SSH-Panel-Pro now? (yes/no): " start_choice
@@ -79,4 +105,5 @@ if [ "$start_choice" = "yes" ] || [ "$start_choice" = "y" ]; then
     /usr/local/bin/ssh-panel-pro
 else
     echo -e "\033[0;33m[*] You can start it later with: ssh-panel-pro\033[0m"
+    echo -e "\033[0;33m[*] Or just disconnect and SSH login again\033[0m"
 fi
